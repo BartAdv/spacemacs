@@ -50,12 +50,48 @@
       (use-package smartparens :config
         (progn (add-to-list 'sp--lisp-modes 'racket-mode)
                (when (fboundp 'sp-local-pair) (sp-local-pair 'racket-mode "`" nil :actions nil))))
+
+      (defun spacemacs//racket-mode-goto-repl ()
+        "Switches to Racket REPL buffer"
+        (select-window (get-buffer-window racket--repl-buffer-name)))
+
+      (defun spacemacs/racket-send-definition-to-repl-focus ()
+        "Send current definition to REPL and evaluate it and switch to the REPL in
+`insert state'."
+        (interactive)
+        (racket-send-definition)
+        (spacemacs//racket-mode-goto-repl)
+        (evil-insert-state))
+
+      (defun spacemacs/racket-send-region-to-repl-focus ()
+        "Send region to REPL and evaluate it and switch to the REPL in
+`insert state'."
+        (interactive)
+        (racket-send-region (region-beginning) (region-end))
+        (spacemacs//racket-mode-goto-repl)
+        (evil-insert-state))
+
+      (defun spacemacs/racket-send-last-sexp-to-repl-focus ()
+        "Send last sexp to REPL and evaluate it and switch to the REPL in
+        `insert state'."
+        (interactive)
+        (racket-send-last-sexp)
+        (spacemacs//racket-mode-goto-repl)
+        (evil-insert-state))
+
       (sp-local-pair 'racket-mode "'" nil :actions nil)
       (evil-leader/set-key-for-mode 'racket-mode
         "ml" 'evil-lisp-state
         "mt" 'racket-test
         "mg" 'racket-visit-definition
-        "mhd" 'racket-doc)
+        "mhd" 'racket-doc
+        "msb" 'racket-run
+        "msr" 'racket-send-region
+        "msR" 'spacemacs/racket-send-region-to-repl-focus
+        "mse" 'racket-send-last-sexp
+        "msE" 'spacemacs/racket-send-last-sexp-to-repl-focus
+        "msf" 'racket-send-definition
+        "msF" 'spacemacs/racket-send-definition-to-repl-focus)
       (add-hook 'racket-mode-hook
                 '(lambda ()
                    (define-key racket-mode-map (kbd "H-r") 'racket-run))))))
